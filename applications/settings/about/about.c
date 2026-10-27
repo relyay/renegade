@@ -14,6 +14,23 @@
 
 typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMessage* message);
 
+static DialogMessageButton about_screen_firmware(DialogsApp* dialogs, DialogMessage* message) {
+    DialogMessageButton result;
+
+    dialog_message_set_icon(message, &I_Renegade_46x46, 2, 4);
+    dialog_message_set_header(message, "Renegade", 54, 4, AlignLeft, AlignTop);
+    dialog_message_set_text(
+        message,
+        "Custom firmware\nfor Flipper Zero\ngithub.com/relyay/\nrenegade",
+        54,
+        17,
+        AlignLeft,
+        AlignTop);
+    result = dialog_message_show(dialogs, message);
+
+    return result;
+}
+
 static DialogMessageButton about_screen_product(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
@@ -197,6 +214,7 @@ static DialogMessageButton about_screen_fw_version(DialogsApp* dialogs, DialogMe
 }
 
 const AboutDialogScreen about_screens[] = {
+    about_screen_firmware,
     about_screen_product,
     about_screen_compliance,
     about_screen_address,

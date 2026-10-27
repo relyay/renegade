@@ -23,7 +23,7 @@ class ProjectDir:
 
 
 class Main(App):
-    DIST_FILE_PREFIX = "flipper-z-"
+    DIST_FILE_PREFIX = "renegade-"
     DIST_FOLDER_MAX_NAME_LENGTH = 80
 
     def init(self):
