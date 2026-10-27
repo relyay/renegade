@@ -49,20 +49,28 @@ jobs:
         env:
           TAG: ${{ steps.version.outputs.tag }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          UPSTREAM_REPO: https://github.com/flipperdevices/flipperzero-firmware.git
+          UPSTREAM_BRANCH: dev
         run: |
           PREV_TAG="$(git describe --tags --abbrev=0 --match 'dev-*' HEAD^ 2>/dev/null || true)"
+          if [ -n "$PREV_TAG" ]; then
+            # Everything since the previous dev release: own commits and merged upstream ones
+            BASE="$PREV_TAG"
+          else
+            # First release: only commits made on top of upstream
+            git fetch --quiet --no-tags "$UPSTREAM_REPO" "$UPSTREAM_BRANCH"
+            BASE="$(git merge-base HEAD FETCH_HEAD)"
+          fi
           {
             echo "Branch: \`${GITHUB_REF_NAME}\`"
             echo "Commit: [\`${GITHUB_SHA:0:8}\`](${REPO_URL}/commit/${GITHUB_SHA})"
             echo
             echo "### Changes"
             echo
+            git log --no-merges --pretty='- %s ([`%h`]('"${REPO_URL}"'/commit/%H))' "${BASE}..HEAD" | head -n 200
             if [ -n "$PREV_TAG" ]; then
-              git log --no-merges --pretty='- %s ([`%h`]('"${REPO_URL}"'/commit/%H))' "${PREV_TAG}..HEAD" | head -n 100
               echo
               echo "**Full diff:** ${REPO_URL}/compare/${PREV_TAG}...${TAG}"
-            else
-              git log --no-merges -n 30 --pretty='- %s ([`%h`]('"${REPO_URL}"'/commit/%H))'
             fi
             echo
             echo "### Install"
