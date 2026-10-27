@@ -31,6 +31,10 @@ typedef enum {
     DesktopLockMenuEventStealthModeOff,
     DesktopLockMenuEventBtOn,
     DesktopLockMenuEventBtOff,
+    DesktopLockMenuEventBrightnessNext,
+    DesktopLockMenuEventClockOn,
+    DesktopLockMenuEventClockOff,
+    DesktopLockMenuEventPowerOff,
 
     DesktopSlideshowCompleted,
     DesktopSlideshowPoweroff,

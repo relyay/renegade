@@ -4,10 +4,10 @@
 
 Custom firmware for Flipper Zero, based on the [official firmware](https://github.com/flipperdevices/flipperzero-firmware).
 
-- Clean desktop: wallpaper with clock and date, quick toggles for lock, sound and Bluetooth on UP, battery info on RIGHT.
+- Clean desktop: wallpaper with clock and date, control center on UP (lock, sound, Bluetooth, brightness, clock, power), battery info on RIGHT.
 - Own look: new logo, wallpaper and redrawn system images.
 - Compatible with the official SDK API, so apps from the official catalog keep working.
-- Every push is built automatically and published as a `dev-xxxxxx` pre-release with the update package.
+- Every push is built automatically and published as a `dev-xxxxxx` release with the update package.
 
 ## Installing
 

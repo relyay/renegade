@@ -32,6 +32,29 @@ static void desktop_scene_lock_menu_update_bt_state(Desktop* desktop) {
     desktop_lock_menu_set_bt_state(desktop->lock_menu, available, enabled);
 }
 
+// Brightness steps the control center cycles through, in percent
+static const uint8_t desktop_scene_lock_menu_brightness_levels[] = {10, 25, 50, 75, 100};
+
+static uint8_t desktop_scene_lock_menu_get_brightness(Desktop* desktop) {
+    return (uint8_t)(desktop->notification->settings.display_brightness * 100.0f + 0.5f);
+}
+
+static void desktop_scene_lock_menu_next_brightness(Desktop* desktop) {
+    const uint8_t current = desktop_scene_lock_menu_get_brightness(desktop);
+    uint8_t next = desktop_scene_lock_menu_brightness_levels[0];
+    for(size_t i = 0; i < COUNT_OF(desktop_scene_lock_menu_brightness_levels); i++) {
+        if(desktop_scene_lock_menu_brightness_levels[i] > current) {
+            next = desktop_scene_lock_menu_brightness_levels[i];
+            break;
+        }
+    }
+
+    desktop->notification->settings.display_brightness = next / 100.0f;
+    notification_message(desktop->notification, &sequence_display_backlight_on);
+    notification_message_save_settings(desktop->notification);
+    desktop_lock_menu_set_brightness(desktop->lock_menu, next);
+}
+
 static void desktop_scene_lock_menu_set_bt_enabled(bool enabled) {
 #ifdef SRV_BT
     Bt* bt = furi_record_open(RECORD_BT);
@@ -58,6 +81,9 @@ void desktop_scene_lock_menu_on_enter(void* context) {
     desktop_lock_menu_set_stealth_mode_state(
         desktop->lock_menu, furi_hal_rtc_is_flag_set(FuriHalRtcFlagStealthMode));
     desktop_scene_lock_menu_update_bt_state(desktop);
+    desktop_lock_menu_set_clock_state(desktop->lock_menu, desktop->settings.display_clock);
+    desktop_lock_menu_set_brightness(
+        desktop->lock_menu, desktop_scene_lock_menu_get_brightness(desktop));
     desktop_lock_menu_set_idx(desktop->lock_menu, 0);
 
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
@@ -81,20 +107,35 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case DesktopLockMenuEventStealthModeOn:
-            desktop_set_stealth_mode_state(desktop, true);
-            scene_manager_search_and_switch_to_previous_scene(
-                desktop->scene_manager, DesktopSceneMain);
-            break;
         case DesktopLockMenuEventStealthModeOff:
-            desktop_set_stealth_mode_state(desktop, false);
-            scene_manager_search_and_switch_to_previous_scene(
-                desktop->scene_manager, DesktopSceneMain);
+            desktop_set_stealth_mode_state(
+                desktop, event.event == DesktopLockMenuEventStealthModeOn);
+            desktop_lock_menu_set_stealth_mode_state(
+                desktop->lock_menu, event.event == DesktopLockMenuEventStealthModeOn);
+            consumed = true;
             break;
         case DesktopLockMenuEventBtOn:
         case DesktopLockMenuEventBtOff:
             desktop_scene_lock_menu_set_bt_enabled(event.event == DesktopLockMenuEventBtOn);
+            desktop_scene_lock_menu_update_bt_state(desktop);
+            consumed = true;
+            break;
+        case DesktopLockMenuEventBrightnessNext:
+            desktop_scene_lock_menu_next_brightness(desktop);
+            consumed = true;
+            break;
+        case DesktopLockMenuEventClockOn:
+        case DesktopLockMenuEventClockOff:
+            desktop->settings.display_clock = event.event == DesktopLockMenuEventClockOn;
+            desktop_lock_menu_set_clock_state(desktop->lock_menu, desktop->settings.display_clock);
+            view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalSaveSettings);
+            consumed = true;
+            break;
+        case DesktopLockMenuEventPowerOff:
             scene_manager_search_and_switch_to_previous_scene(
                 desktop->scene_manager, DesktopSceneMain);
+            loader_start_detached_with_gui_error(desktop->loader, "Power", "off");
+            consumed = true;
             break;
         default:
             break;
