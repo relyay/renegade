@@ -12,7 +12,7 @@ void power_settings_scene_power_off_on_enter(void* context) {
 
     dialog_ex_set_header(dialog, "Turn Off Device?", 64, 0, AlignCenter, AlignTop);
     dialog_ex_set_text(dialog, "Going dark.\nSee you\nsoon...", 78, 16, AlignLeft, AlignTop);
-    dialog_ex_set_icon(dialog, 14, 10, &I_dolph_cry_49x54);
+    dialog_ex_set_icon(dialog, 16, 11, &I_PowerOff_40x40);
     dialog_ex_set_left_button_text(dialog, "Cancel");
     dialog_ex_set_right_button_text(dialog, "Power Off");
     dialog_ex_set_result_callback(dialog, power_settings_scene_power_off_dialog_callback);
