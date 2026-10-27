@@ -1,0 +1,85 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TARGET_HW: 7
+  FBT_NO_SYNC: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set version
+        id: version
+        run: |
+          TAG="dev-${GITHUB_SHA:0:6}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "DIST_SUFFIX=$TAG" >> "$GITHUB_ENV"
+          echo "WORKFLOW_BRANCH_OR_TAG=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          # Firmware version is taken from the tag on HEAD
+          git tag -f "$TAG"
+
+      - name: Cache toolchain
+        uses: actions/cache@v4
+        with:
+          path: toolchain
+          key: toolchain-${{ runner.os }}-${{ hashFiles('scripts/toolchain/fbtenv.sh') }}
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Build update package
+        run: just update
+
+      - name: Write release notes
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          PREV_TAG="$(git describe --tags --abbrev=0 --match 'dev-*' HEAD^ 2>/dev/null || true)"
+          {
+            echo "Branch: \`${GITHUB_REF_NAME}\`"
+            echo "Commit: [\`${GITHUB_SHA:0:8}\`](${REPO_URL}/commit/${GITHUB_SHA})"
+            echo
+            echo "### Changes"
+            echo
+            if [ -n "$PREV_TAG" ]; then
+              git log --no-merges --pretty='- %s ([`%h`]('"${REPO_URL}"'/commit/%H))' "${PREV_TAG}..HEAD" | head -n 100
+              echo
+              echo "**Full diff:** ${REPO_URL}/compare/${PREV_TAG}...${TAG}"
+            else
+              git log --no-merges -n 30 --pretty='- %s ([`%h`]('"${REPO_URL}"'/commit/%H))'
+            fi
+            echo
+            echo "### Install"
+            echo
+            echo "Download \`renegade-f${TARGET_HW}-update-${TAG}.tgz\` and install it with qFlipper"
+            echo "(\"Install from file\"), or unpack it to \`/ext/update/\` on the SD card and"
+            echo "launch \`update.fuf\` from the Archive."
+          } > release_notes.md
+          cat release_notes.md
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.version.outputs.tag }}
+          body_path: release_notes.md
+          prerelease: true
+          files: dist/f${{ env.TARGET_HW }}-*/renegade-f${{ env.TARGET_HW }}-update-${{ steps.version.outputs.tag }}.tgz
+          fail_on_unmatched_files: true
