@@ -1,15 +1,13 @@
-<img alt="Renegade firmware screens: desktop with clock, About screen and first start slideshow" src="/.github/assets/banner.png">
+<img alt="Renegade: custom firmware for Flipper Zero" src="/.github/assets/banner.png">
 
 # Renegade
 
 Custom firmware for Flipper Zero, based on the [official firmware](https://github.com/flipperdevices/flipperzero-firmware).
 
-What is different from upstream:
-
-- No dolphin: no pet, levels, mood, passport, idle animations or games. The desktop shows a static wallpaper with a clock, date and SD card / battery hints.
-- Own branding and redrawn assets.
-- The SDK API stays compatible with the official firmware: `dolphin_*` functions are kept as no-op stubs, so apps from the official catalog keep working.
-- Every push is built by GitHub Actions and published as a `dev-xxxxxx` pre-release with the update package and the list of commits.
+- Clean desktop: wallpaper with clock and date, quick toggles for lock, sound and Bluetooth on UP, battery info on RIGHT.
+- Own look: new logo, wallpaper and redrawn system images.
+- Compatible with the official SDK API, so apps from the official catalog keep working.
+- Every push is built automatically and published as a `dev-xxxxxx` pre-release with the update package.
 
 ## Installing
 
