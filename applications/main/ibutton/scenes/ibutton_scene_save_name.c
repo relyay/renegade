@@ -3,8 +3,6 @@
 #include <toolbox/name_generator.h>
 #include <toolbox/path.h>
 
-#include <dolphin/dolphin.h>
-
 static void ibutton_scene_save_name_text_input_callback(void* context) {
     iButton* ibutton = context;
     view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventTextEditResult);
@@ -67,9 +65,7 @@ bool ibutton_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                     // Nothing, do not count editing as saving
                 } else if(scene_manager_has_previous_scene(
                               ibutton->scene_manager, iButtonSceneAddType)) {
-                    dolphin_deed(DolphinDeedIbuttonAdd);
                 } else {
-                    dolphin_deed(DolphinDeedIbuttonSave);
                 }
 
             } else {

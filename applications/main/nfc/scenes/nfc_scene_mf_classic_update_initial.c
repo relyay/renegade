@@ -73,7 +73,6 @@ static void nfc_scene_mf_classic_update_initial_setup_view(NfcApp* instance) {
 
 void nfc_scene_mf_classic_update_initial_on_enter(void* context) {
     NfcApp* instance = context;
-    dolphin_deed(DolphinDeedNfcEmulate);
 
     const MfClassicData* mfc_data =
         nfc_device_get_data(instance->nfc_device, NfcProtocolMfClassic);

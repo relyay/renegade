@@ -6,7 +6,6 @@
 #include <gui/gui.h>
 #include <gui/view_holder.h>
 #include <gui/modules/loading.h>
-#include <dolphin/dolphin.h>
 #include <lib/toolbox/path.h>
 
 #define TAG "LoaderApplications"
@@ -127,8 +126,6 @@ static void loader_pubsub_callback(const void* message, void* context) {
 
 static void
     loader_applications_start_app(LoaderApplicationsApp* app, const char* name, const char* args) {
-    dolphin_deed(DolphinDeedPluginStart);
-
     // load app
     FuriThreadId thread_id = furi_thread_get_current_id();
     FuriPubSubSubscription* subscription =

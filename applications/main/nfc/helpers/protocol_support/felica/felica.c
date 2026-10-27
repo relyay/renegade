@@ -85,7 +85,6 @@ bool nfc_scene_read_on_event_felica(NfcApp* instance, SceneManagerEvent event) {
         } else if(event.event == NfcCustomEventPollerIncomplete) {
             notification_message(instance->notifications, &sequence_semi_success);
             scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-            dolphin_deed(DolphinDeedNfcReadSuccess);
         }
     }
     return true;

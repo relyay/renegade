@@ -7,7 +7,6 @@ void nfc_scene_mf_classic_update_initial_success_popup_callback(void* context) {
 
 void nfc_scene_mf_classic_update_initial_success_on_enter(void* context) {
     NfcApp* instance = context;
-    dolphin_deed(DolphinDeedNfcSave);
 
     notification_message(instance->notifications, &sequence_success);
 

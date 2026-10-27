@@ -159,23 +159,19 @@ Steps:
 
    **Expected result:** keys successfully deleted.
 
-## 6. "Dummy mode"
+## 6. Quick access apps
 
 Steps:
 
-1. It is recommended to install in the settings, applications in quick access for dummy mode, for buttons LEFT, DOWN, RIGHT and their clamping.
+1. Go to Settings → Desktop → Set Quick Access Apps and assign applications to LEFT and RIGHT press and hold.
 
-2. On the main screen press UP → Dummy mode.
+2. On the main screen press and hold LEFT and RIGHT.
 
-   **Expected result:** upon exiting to the desktop, the gamepad icon appeared. When you press the central button (OK), the Passport opens.
+   **Expected result:** exactly those applications assigned to a specific button open.
 
-3. Press, LEFT, BOTTOM, RIGHT, and also press and hold them.
+3. Reset the RIGHT press assignment to the default value and press RIGHT on the main screen.
 
-   **Expected result:** exactly those applications assigned to a specific button open and hold down the button.
-
-4. On the main screen press UP → Default mode.
-
-   **Expected result:** Dummy mode is disabled, the gamepad icon has disappeared, when you click OK, the application menu opens.
+   **Expected result:** the application menu opens.
 
 ## 7. Checking cards and protocols. NTAG215
 
@@ -559,10 +555,9 @@ Checking whether the flipper name is displayed correctly in different scenarios.
 Steps:
 
 1. Press the DOWN button and make sure the name is there.
-2. Go to Settings → Passport.
+2. Go to Settings → About → HW Version Info.
 
-    **Expected result:** the name is on the menu:
-    ![](images/flipperzero-passport.png)
+    **Expected result:** the name is shown in the hardware info.
 
 3. On Linux, run `dmesg -w`. Connect the device via USB, make sure that the name is in the device name and in the Serial number `ls -l /dev/serial/by-id/`.
 
@@ -659,12 +654,6 @@ Steps:
 5. USB Remote. Connect the flipper to your PC or phone using a cable and open the application, selecting the desired mode.
 
    **Expected result:** it just works in mouse or keyboard mode.
-
-6. Go to Games - Snake and start the game with pressing the buttons.
-
-   **Expected result:**
-    1. The game has started.
-    2. Snake control works.
 
 ## 32. Up Button Menu
 

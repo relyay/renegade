@@ -1,5 +1,4 @@
 #include "../nfc_app_i.h"
-#include <dolphin/dolphin.h>
 
 void nfc_scene_mf_ultralight_unlock_warn_dialog_callback(DialogExResult result, void* context) {
     NfcApp* nfc = context;
@@ -60,7 +59,6 @@ bool nfc_scene_mf_ultralight_unlock_warn_on_event(void* context, SceneManagerEve
                 nfc_detected_protocols_set(
                     nfc->detected_protocols, mfu_protocol, COUNT_OF(mfu_protocol));
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
-                dolphin_deed(DolphinDeedNfcRead);
                 consumed = true;
             } else if(event.event == DialogExResultLeft) {
                 if(type == MfUltralightAuthTypeReader) {
@@ -81,7 +79,6 @@ bool nfc_scene_mf_ultralight_unlock_warn_on_event(void* context, SceneManagerEve
                 nfc_detected_protocols_set(
                     nfc->detected_protocols, mfu_protocol, COUNT_OF(mfu_protocol));
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneRead);
-                dolphin_deed(DolphinDeedNfcRead);
                 consumed = true;
             }
         }

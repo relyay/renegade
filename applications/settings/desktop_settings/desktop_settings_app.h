@@ -44,6 +44,5 @@ typedef struct {
     bool pincode_buffer_filled;
 
     uint32_t pin_menu_idx;
-    uint32_t quick_apps_menu_idx;
     uint32_t quick_apps_direction_menu_idx;
 } DesktopSettingsApp;

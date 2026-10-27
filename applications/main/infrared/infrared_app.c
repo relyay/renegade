@@ -5,7 +5,6 @@
 #include <string.h>
 #include <toolbox/path.h>
 #include <toolbox/saved_struct.h>
-#include <dolphin/dolphin.h>
 
 #define TAG "InfraredApp"
 
@@ -388,7 +387,6 @@ void infrared_tx_start(InfraredApp* infrared) {
         infrared_worker_set_decoded_signal(infrared->worker, message);
     }
 
-    dolphin_deed(DolphinDeedIrSend);
     infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 
     infrared_worker_tx_set_get_signal_callback(
@@ -429,7 +427,6 @@ void infrared_tx_send_once(InfraredApp* infrared) {
         return;
     }
 
-    dolphin_deed(DolphinDeedIrSend);
     infrared_signal_transmit(infrared->current_signal);
 }
 

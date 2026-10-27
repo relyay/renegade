@@ -28,45 +28,6 @@ def _proto_emitter(target, source, env):
     return target, source
 
 
-def _dolphin_emitter(target, source, env):
-    res_root_dir = source[0].Dir(env["DOLPHIN_RES_TYPE"])
-    source = list()
-    source.extend(env.GlobRecursive("*.*", res_root_dir.srcnode()))
-
-    target_base_dir = target[0]
-    env.Replace(_DOLPHIN_OUT_DIR=target[0])
-    env.Replace(_DOLPHIN_SRC_DIR=res_root_dir)
-
-    if env["DOLPHIN_RES_TYPE"] == "external":
-        target = [target_base_dir.File("manifest.txt")]
-        ## A detailed list of files to be generated
-        # Not used ATM, becasuse it inflates the internal dependency graph too much
-        # Preserve original paths, do .png -> .bm conversion
-        # target.extend(
-        #     map(
-        #         lambda node: target_base_dir.File(
-        #             res_root_dir.rel_path(node).replace(".png", ".bm")
-        #         ),
-        #         filter(lambda node: isinstance(node, File), source),
-        #     )
-        # )
-    else:
-        asset_basename = f"assets_dolphin_{env['DOLPHIN_RES_TYPE']}"
-        target = [
-            target_base_dir.File(asset_basename + ".c"),
-            target_base_dir.File(asset_basename + ".h"),
-        ]
-
-    ## Debug output
-    # print(
-    #     f"Dolphin res type: {env['DOLPHIN_RES_TYPE']},\ntarget files:",
-    #     list(f.path for f in target),
-    #     f"\nsource files:",
-    #     list(f.path for f in source),
-    # )
-    return target, source
-
-
 def __invoke_git(args, source_dir):
     cmd = ["git"]
     cmd.extend(args)
@@ -141,7 +102,6 @@ def generate(env):
         env.SetDefault(
             ICONSCOMSTR="\tICONS\t${TARGET}",
             PROTOCOMSTR="\tPROTO\t${SOURCE}",
-            DOLPHINCOMSTR="\tDOLPHIN\t${DOLPHIN_RES_TYPE}",
             PBVERCOMSTR="\tPBVER\t${TARGET}",
         )
 
@@ -181,38 +141,6 @@ def generate(env):
                 emitter=_proto_emitter,
                 suffix=".pb.c",
                 src_suffix=".proto",
-            ),
-            "DolphinSymBuilder": Builder(
-                action=Action(
-                    [
-                        [
-                            "${PYTHON3}",
-                            "${ASSETS_COMPILER}",
-                            "dolphin",
-                            "-s",
-                            "dolphin_${DOLPHIN_RES_TYPE}",
-                            "${_DOLPHIN_SRC_DIR}",
-                            "${_DOLPHIN_OUT_DIR}",
-                        ],
-                    ],
-                    "${DOLPHINCOMSTR}",
-                ),
-                emitter=_dolphin_emitter,
-            ),
-            "DolphinExtBuilder": Builder(
-                action=Action(
-                    [
-                        [
-                            "${PYTHON3}",
-                            "${ASSETS_COMPILER}",
-                            "dolphin",
-                            "${_DOLPHIN_SRC_DIR}",
-                            "${_DOLPHIN_OUT_DIR}",
-                        ],
-                    ],
-                    "${DOLPHINCOMSTR}",
-                ),
-                emitter=_dolphin_emitter,
             ),
             "ProtoVerBuilder": Builder(
                 action=Action(

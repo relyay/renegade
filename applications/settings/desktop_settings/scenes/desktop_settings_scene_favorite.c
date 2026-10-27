@@ -11,8 +11,6 @@
 #define DEFAULT_INDEX                  (0)
 #define EXTERNAL_BROWSER_NAME          ("(   ) Apps Menu (Default)")
 #define EXTERNAL_BROWSER_NAME_SELECTED ("(*) Apps Menu (Default)")
-#define PASSPORT_NAME                  ("(   ) Passport (Default)")
-#define PASSPORT_NAME_SELECTED         ("(*) Passport (Default)")
 
 #define SELECTED_PREFIX     ("(*) ")
 #define NOT_SELECTED_PREFIX ("(   ) ")
@@ -66,27 +64,13 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     uint32_t favorite_id =
         scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
     uint32_t pre_select_item = PRESELECTED_SPECIAL;
-    FavoriteApp* curr_favorite_app = NULL;
-    bool default_passport = false;
-
-    if((favorite_id & SCENE_STATE_SET_DUMMY_APP) == 0) {
-        furi_assert(favorite_id < FavoriteAppNumber);
-        curr_favorite_app = &app->settings.favorite_apps[favorite_id];
-        if(favorite_id == FavoriteAppRightShort) {
-            default_passport = true;
-        }
-    } else {
-        favorite_id &= ~(SCENE_STATE_SET_DUMMY_APP); //-V784
-        furi_assert(favorite_id < DummyAppNumber);
-        curr_favorite_app = &app->settings.dummy_apps[favorite_id];
-        default_passport = true;
-        favorite_id |= SCENE_STATE_SET_DUMMY_APP;
-    }
+    furi_assert(favorite_id < FavoriteAppNumber);
+    FavoriteApp* curr_favorite_app = &app->settings.favorite_apps[favorite_id];
 
     // Special case: Application browser
     submenu_add_item(
         submenu,
-        default_passport ? (PASSPORT_NAME) : (EXTERNAL_BROWSER_NAME),
+        EXTERNAL_BROWSER_NAME,
         DEFAULT_INDEX,
         desktop_settings_scene_favorite_submenu_callback,
         app);
@@ -129,10 +113,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     if(pre_select_item == PRESELECTED_SPECIAL) {
         if(curr_favorite_app->name_or_path[0] == '\0') {
             pre_select_item = DEFAULT_INDEX;
-            submenu_change_item_label(
-                submenu,
-                DEFAULT_INDEX,
-                default_passport ? (PASSPORT_NAME_SELECTED) : (EXTERNAL_BROWSER_NAME_SELECTED));
+            submenu_change_item_label(submenu, DEFAULT_INDEX, EXTERNAL_BROWSER_NAME_SELECTED);
         } else {
             pre_select_item = EXTERNAL_APPLICATION_INDEX;
             submenu_change_item_label(
@@ -141,25 +122,17 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     }
 
     switch(favorite_id) {
-    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftShort:
-    case SCENE_STATE_SET_DUMMY_APP | DummyAppLeft:
+    case FavoriteAppLeftShort:
         submenu_set_header(submenu, "Left - Press");
         break;
-    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppLeftLong:
+    case FavoriteAppLeftLong:
         submenu_set_header(submenu, "Left - Hold");
         break;
-    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightShort:
-    case SCENE_STATE_SET_DUMMY_APP | DummyAppRight:
+    case FavoriteAppRightShort:
         submenu_set_header(submenu, "Right - Press");
         break;
-    case SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightLong:
+    case FavoriteAppRightLong:
         submenu_set_header(submenu, "Right - Hold");
-        break;
-    case SCENE_STATE_SET_DUMMY_APP | DummyAppDown:
-        submenu_set_header(submenu, "Down - Press");
-        break;
-    case SCENE_STATE_SET_DUMMY_APP | DummyAppOk:
-        submenu_set_header(submenu, "Middle - Press");
         break;
     default:
         break;
@@ -177,15 +150,8 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
     uint32_t favorite_id =
         scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
-    FavoriteApp* curr_favorite_app = NULL;
-    if((favorite_id & SCENE_STATE_SET_DUMMY_APP) == 0) {
-        furi_assert(favorite_id < FavoriteAppNumber);
-        curr_favorite_app = &app->settings.favorite_apps[favorite_id];
-    } else {
-        favorite_id &= ~(SCENE_STATE_SET_DUMMY_APP); //-V784
-        furi_assert(favorite_id < DummyAppNumber);
-        curr_favorite_app = &app->settings.dummy_apps[favorite_id];
-    }
+    furi_assert(favorite_id < FavoriteAppNumber);
+    FavoriteApp* curr_favorite_app = &app->settings.favorite_apps[favorite_id];
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DEFAULT_INDEX) {

@@ -4,8 +4,6 @@
 #include <gui/canvas.h>
 #include <toolbox/version.h>
 #include <assets_icons.h>
-#include <dolphin/helpers/dolphin_state.h>
-#include <dolphin/dolphin.h>
 
 #include "desktop_settings_view_pin_setup_howto.h"
 

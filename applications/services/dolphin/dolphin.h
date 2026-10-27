@@ -1,3 +1,11 @@
+/**
+ * @file dolphin.h
+ * Dolphin API compatibility layer.
+ *
+ * The dolphin service has been removed from this firmware. Every function
+ * here is a no-op that is kept only for compatibility with third-party
+ * applications. Do not use it in new code.
+ */
 #pragma once
 
 #include <stdbool.h>
@@ -29,24 +37,17 @@ typedef enum {
     DolphinPubsubEventUpdate,
 } DolphinPubsubEvent;
 
-/** Deed complete notification. Call it on deed completion.
- * See dolphin_deed.h for available deeds. In futures it will become part of assets.
- * Thread safe, async
- */
+/** Deed complete notification. Does nothing. */
 void dolphin_deed(DolphinDeed deed);
 
 void dolphin_get_settings(Dolphin* dolphin, DolphinSettings* settings);
 
 void dolphin_set_settings(Dolphin* dolphin, DolphinSettings* settings);
 
-/** Retrieve dolphin stats
- * Thread safe, blocking
- */
+/** Retrieve dolphin stats. Always returns zeroed stats. */
 DolphinStats dolphin_stats(Dolphin* dolphin);
 
-/** Flush dolphin queue and save state
- * Thread safe, blocking
- */
+/** Does nothing. */
 void dolphin_flush(Dolphin* dolphin);
 
 void dolphin_upgrade_level(Dolphin* dolphin);

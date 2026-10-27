@@ -5,10 +5,12 @@
 #include "../desktop_i.h"
 #include "desktop_view_lock_menu.h"
 
+// Center the menu items in the area below the status bar
+#define LOCK_MENU_Y_OFFSET (STATUS_BAR_Y_SHIFT + 8)
+
 typedef enum {
     DesktopLockMenuIndexLock,
     DesktopLockMenuIndexStealth,
-    DesktopLockMenuIndexDummy,
 
     DesktopLockMenuIndexTotalCount
 } DesktopLockMenuIndex;
@@ -21,14 +23,6 @@ void desktop_lock_menu_set_callback(
     furi_assert(callback);
     lock_menu->callback = callback;
     lock_menu->context = context;
-}
-
-void desktop_lock_menu_set_dummy_mode_state(DesktopLockMenuView* lock_menu, bool dummy_mode) {
-    with_view_model(
-        lock_menu->view,
-        DesktopLockMenuViewModel * model,
-        { model->dummy_mode = dummy_mode; },
-        true);
 }
 
 void desktop_lock_menu_set_stealth_mode_state(DesktopLockMenuView* lock_menu, bool stealth_mode) {
@@ -64,19 +58,13 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
             } else {
                 str = "Mute";
             }
-        } else if(i == DesktopLockMenuIndexDummy) { //-V547
-            if(m->dummy_mode) {
-                str = "Default Mode";
-            } else {
-                str = "Dummy Mode";
-            }
         }
 
         if(str) //-V547
             canvas_draw_str_aligned(
-                canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+                canvas, 64, 9 + (i * 17) + LOCK_MENU_Y_OFFSET, AlignCenter, AlignCenter, str);
 
-        if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 17) + STATUS_BAR_Y_SHIFT, 98, 15);
+        if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 17) + LOCK_MENU_Y_OFFSET, 98, 15);
     }
 }
 
@@ -92,7 +80,6 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
     DesktopLockMenuView* lock_menu = context;
     uint8_t idx = 0;
     bool consumed = false;
-    bool dummy_mode = false;
     bool stealth_mode = false;
     bool update = false;
 
@@ -120,7 +107,6 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
                 }
             }
             idx = model->idx;
-            dummy_mode = model->dummy_mode;
             stealth_mode = model->stealth_mode;
         },
         update);
@@ -135,12 +121,6 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
                 lock_menu->callback(DesktopLockMenuEventStealthModeOn, lock_menu->context);
             } else if((stealth_mode == true) && (event->type == InputTypeShort)) {
                 lock_menu->callback(DesktopLockMenuEventStealthModeOff, lock_menu->context);
-            }
-        } else if(idx == DesktopLockMenuIndexDummy) {
-            if((dummy_mode == false) && (event->type == InputTypeShort)) {
-                lock_menu->callback(DesktopLockMenuEventDummyModeOn, lock_menu->context);
-            } else if((dummy_mode == true) && (event->type == InputTypeShort)) {
-                lock_menu->callback(DesktopLockMenuEventDummyModeOff, lock_menu->context);
             }
         }
         consumed = true;

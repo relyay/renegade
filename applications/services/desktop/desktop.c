@@ -26,7 +26,6 @@ static void desktop_loader_callback(const void* message, void* context) {
 
     if(event->type == LoaderEventTypeApplicationBeforeLoad) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
-        furi_check(furi_semaphore_acquire(desktop->animation_semaphore, 3000) == FuriStatusOk);
     } else if(event->type == LoaderEventTypeNoMoreAppsInQueue) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
@@ -46,12 +45,6 @@ static void desktop_lock_icon_draw_callback(Canvas* canvas, void* context) {
     UNUSED(context);
     furi_assert(canvas);
     canvas_draw_icon(canvas, 0, 0, &I_Lock_7x8);
-}
-
-static void desktop_dummy_mode_icon_draw_callback(Canvas* canvas, void* context) {
-    UNUSED(context);
-    furi_assert(canvas);
-    canvas_draw_icon(canvas, 0, 0, &I_GameMode_11x8);
 }
 
 static void desktop_clock_update(Desktop* desktop) {
@@ -123,17 +116,10 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
     Desktop* desktop = (Desktop*)context;
 
     if(event == DesktopGlobalBeforeAppStarted) {
-        if(animation_manager_is_animation_loaded(desktop->animation_manager)) {
-            animation_manager_unload_and_stall_animation(desktop->animation_manager);
-        }
-
         desktop_auto_lock_inhibit(desktop);
         desktop->app_running = true;
 
-        furi_semaphore_release(desktop->animation_semaphore);
-
     } else if(event == DesktopGlobalAfterAppFinished) {
-        animation_manager_load_and_continue_animation(desktop->animation_manager);
         desktop_auto_lock_arm(desktop);
         desktop->app_running = false;
 
@@ -166,6 +152,7 @@ static bool desktop_back_event_callback(void* context) {
 static void desktop_tick_event_callback(void* context) {
     furi_assert(context);
     Desktop* app = context;
+    desktop_view_wallpaper_update(app->wallpaper_view);
     scene_manager_handle_tick_event(app->scene_manager);
 }
 
@@ -228,11 +215,6 @@ static void desktop_apply_settings(Desktop* desktop) {
 
     desktop_clock_reconfigure(desktop);
 
-    view_port_enabled_set(desktop->dummy_mode_icon_viewport, desktop->settings.dummy_mode);
-    desktop_main_set_dummy_mode_state(desktop->main_view, desktop->settings.dummy_mode);
-    animation_manager_set_dummy_mode_state(
-        desktop->animation_manager, desktop->settings.dummy_mode);
-
     if(!desktop->app_running && !desktop->locked) {
         desktop_auto_lock_arm(desktop);
     }
@@ -255,8 +237,6 @@ static void desktop_init_settings(Desktop* desktop) {
 static Desktop* desktop_alloc(void) {
     Desktop* desktop = malloc(sizeof(Desktop));
 
-    desktop->animation_semaphore = furi_semaphore_alloc(1, 0);
-    desktop->animation_manager = animation_manager_alloc();
     desktop->gui = furi_record_open(RECORD_GUI);
     desktop->scene_thread = furi_thread_alloc();
     desktop->view_dispatcher = view_dispatcher_alloc();
@@ -283,16 +263,18 @@ static Desktop* desktop_alloc(void) {
 
     desktop->main_view_stack = view_stack_alloc();
     desktop->main_view = desktop_main_alloc();
-    View* dolphin_view = animation_manager_get_animation_view(desktop->animation_manager);
+    desktop->wallpaper_view = desktop_view_wallpaper_alloc();
+    desktop_view_wallpaper_update(desktop->wallpaper_view);
+    View* wallpaper_view = desktop_view_wallpaper_get_view(desktop->wallpaper_view);
     view_stack_add_view(desktop->main_view_stack, desktop_main_get_view(desktop->main_view));
-    view_stack_add_view(desktop->main_view_stack, dolphin_view);
+    view_stack_add_view(desktop->main_view_stack, wallpaper_view);
     view_stack_add_view(
         desktop->main_view_stack, desktop_view_locked_get_view(desktop->locked_view));
 
-    /* locked view (as animation view) attends in 2 scenes: main & locked,
-     * because it has to draw "Unlocked" label on main scene */
+    /* wallpaper and locked views attend in 2 scenes: main & locked,
+     * because locked view has to draw "Unlocked" label on main scene */
     desktop->locked_view_stack = view_stack_alloc();
-    view_stack_add_view(desktop->locked_view_stack, dolphin_view);
+    view_stack_add_view(desktop->locked_view_stack, wallpaper_view);
     view_stack_add_view(
         desktop->locked_view_stack, desktop_view_locked_get_view(desktop->locked_view));
 
@@ -333,14 +315,6 @@ static Desktop* desktop_alloc(void) {
     view_port_enabled_set(desktop->lock_icon_viewport, false);
     gui_add_view_port(desktop->gui, desktop->lock_icon_viewport, GuiLayerStatusBarLeft);
 
-    // Dummy mode icon
-    desktop->dummy_mode_icon_viewport = view_port_alloc();
-    view_port_set_width(desktop->dummy_mode_icon_viewport, icon_get_width(&I_GameMode_11x8));
-    view_port_draw_callback_set(
-        desktop->dummy_mode_icon_viewport, desktop_dummy_mode_icon_draw_callback, desktop);
-    view_port_enabled_set(desktop->dummy_mode_icon_viewport, false);
-    gui_add_view_port(desktop->gui, desktop->dummy_mode_icon_viewport, GuiLayerStatusBarLeft);
-
     // Clock
     desktop->clock_viewport = view_port_alloc();
     view_port_set_width(desktop->clock_viewport, 25);
@@ -360,7 +334,7 @@ static Desktop* desktop_alloc(void) {
     }
     gui_add_view_port(desktop->gui, desktop->stealth_mode_icon_viewport, GuiLayerStatusBarLeft);
 
-    // Unload animations before starting an application
+    // Track running applications
     desktop->loader = furi_record_open(RECORD_LOADER);
     furi_pubsub_subscribe(loader_get_pubsub(desktop->loader), desktop_loader_callback, desktop);
 
@@ -432,19 +406,6 @@ void desktop_unlock(Desktop* desktop) {
     furi_pubsub_publish(desktop->status_pubsub, &status);
 
     desktop->locked = false;
-}
-
-void desktop_set_dummy_mode_state(Desktop* desktop, bool enabled) {
-    desktop->in_transition = true;
-
-    view_port_enabled_set(desktop->dummy_mode_icon_viewport, enabled);
-    desktop_main_set_dummy_mode_state(desktop->main_view, enabled);
-    animation_manager_set_dummy_mode_state(desktop->animation_manager, enabled);
-    desktop->settings.dummy_mode = enabled;
-
-    desktop->in_transition = false;
-
-    desktop_settings_save(&desktop->settings);
 }
 
 void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled) {
@@ -549,11 +510,6 @@ int32_t desktop_srv(void* p) {
             keys_valid);
 
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneSecureEnclave);
-    }
-
-    // Special case: autostart application is already running
-    if(desktop->app_running && animation_manager_is_animation_loaded(desktop->animation_manager)) {
-        animation_manager_unload_and_stall_animation(desktop->animation_manager);
     }
 
     view_dispatcher_run(desktop->view_dispatcher);

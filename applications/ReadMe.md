@@ -46,7 +46,6 @@ Background services providing system APIs to applications.
 - `crypto`              - Crypto cli tools
 - `desktop`             - Desktop service
 - `dialogs`             - Dialogs service: GUI Dialogs for your app
-- `dolphin`             - Dolphin service and supplementary apps
 - `gui`                 - GUI service and API
 - `input`               - Input service
 - `loader`              - Application loader service
@@ -63,7 +62,6 @@ Small applications providing configuration for basic firmware and its services.
 - `about`               - Small About application that shows flipper info
 - `bt_settings_app`     - Bluetooth options
 - `desktop_settings`    - Desktop configuration
-- `dolphin_passport`    - Dolphin passport app
 - `notification_settings` - LCD brightness, sound volume, etc configuration
 - `power_settings_app`  - Basic power options
 - `storage_settings`    - Storage settings app
@@ -76,6 +74,5 @@ Utility apps not visible in other menus, plus few external apps pre-packaged wit
 
 - `hid_app`             - BLE & USB HID remote
 - `js_app`              - JS engine runner
-- `snake_game`          - Snake game
 - `storage_move_to_sd`  - Data migration tool for internal storage
 - `updater`             - Update service & application

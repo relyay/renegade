@@ -159,7 +159,7 @@ if env["IS_BASE_FIRMWARE"]:
     manifest = fwenv.ManifestBuilder(
         "${RESOURCES_ROOT}/Manifest",
         GIT_UNIX_TIMESTAMP=get_git_commit_unix_timestamp(),
-        _EXTRA_DIST=[fwenv["DOLPHIN_EXTERNAL_OUT_DIR"]],
+        _EXTRA_DIST=[],
     )
     fwenv.Replace(FW_RESOURCES_MANIFEST=manifest)
     fwenv.Alias("resources", manifest)

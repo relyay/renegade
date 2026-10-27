@@ -1,5 +1,4 @@
 #include "../subghz_i.h"
-#include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
     SubmenuIndexRead = 10,
@@ -94,7 +93,6 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexFrequencyAnalyzer);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
-            dolphin_deed(DolphinDeedSubGhzFrequencyAnalyzer);
             return true;
         } else if(event.event == SubmenuIndexShowRegionInfo) {
             scene_manager_set_scene_state(

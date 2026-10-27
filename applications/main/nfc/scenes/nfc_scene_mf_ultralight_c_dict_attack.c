@@ -1,5 +1,4 @@
 #include "../nfc_app_i.h"
-#include <dolphin/dolphin.h>
 
 #define TAG "NfcMfUlCDictAttack"
 
@@ -161,7 +160,6 @@ bool nfc_scene_mf_ultralight_c_dict_attack_on_event(void* context, SceneManagerE
                 if(instance->mf_ultralight_c_dict_context.auth_success) {
                     notification_message(instance->notifications, &sequence_success);
                     scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                    dolphin_deed(DolphinDeedNfcReadSuccess);
                     consumed = true;
                 } else {
                     nfc_poller_stop(instance->poller);
@@ -187,7 +185,6 @@ bool nfc_scene_mf_ultralight_c_dict_attack_on_event(void* context, SceneManagerE
                     notification_message(instance->notifications, &sequence_semi_success);
                 }
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
             }
         } else if(event.event == NfcCustomEventDictAttackDataUpdate) {
@@ -210,7 +207,6 @@ bool nfc_scene_mf_ultralight_c_dict_attack_on_event(void* context, SceneManagerE
             } else {
                 notification_message(instance->notifications, &sequence_semi_success);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                dolphin_deed(DolphinDeedNfcReadSuccess);
             }
             consumed = true;
         }

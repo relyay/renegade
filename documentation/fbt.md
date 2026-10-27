@@ -87,10 +87,10 @@ To use language servers other than the default VS Code C/C++ language server, us
 ### Firmware targets
 
 - `faps` — build all external & plugin apps as [`.faps`](AppsOnSDCard.md).
-- `fbt` also defines per-app targets. For example, for an app with `appid=snake_game` target names are:
-  - `fap_snake_game`, etc. — build single app as `.fap` by its app ID.
+- `fbt` also defines per-app targets. For example, for an app with `appid=hid_usb` target names are:
+  - `fap_hid_usb`, etc. — build single app as `.fap` by its app ID.
   - Check out [--extra-ext-apps](#command-line-parameters) for force adding extra apps to external build.
-  - `fap_snake_game_list`, etc — generate source + assembler listing for app's `.fap`.
+  - `fap_hid_usb_list`, etc — generate source + assembler listing for app's `.fap`.
 - `flash`, `firmware_flash` — flash the current version to the attached device over SWD.
 - `jflash` — flash the current version to the attached device with JFlash using a J-Link probe. The JFlash executable must be on your `$PATH`.
 - `firmware_all`, `updater_all` — build a basic set of binaries.
@@ -100,11 +100,9 @@ To use language servers other than the default VS Code C/C++ language server, us
 ### Assets
 
 - `resources` — build resources and their manifest files
-  - `dolphin_ext` — process dolphin animations for the SD card
 - `icons` — generate `.c+.h` for icons from PNG assets
 - `proto` — generate `.pb.c+.pb.h` for `.proto` sources
 - `proto_ver` — generate `.h` with a protobuf version
-- `dolphin_internal`, `dolphin_blocking` — generate `.c+.h` for corresponding dolphin assets
 
 ## Command-line parameters {#command-line-parameters}
 

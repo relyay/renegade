@@ -1,5 +1,4 @@
 #include "../nfc_app_i.h"
-#include <dolphin/dolphin.h>
 
 void nfc_scene_detect_scan_callback(NfcScannerEvent event, void* context) {
     furi_assert(context);

@@ -1,8 +1,6 @@
 #include "nfc_app_i.h"
 #include "helpers/protocol_support/nfc_protocol_support.h"
 
-#include <dolphin/dolphin.h>
-
 bool nfc_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     NfcApp* nfc = context;

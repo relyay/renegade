@@ -171,7 +171,6 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
             nfc_poller_free(instance->poller);
             notification_message(instance->notifications, &sequence_success);
             scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-            dolphin_deed(DolphinDeedNfcReadSuccess);
             consumed = true;
         } else if(event.event == NfcCustomEventPollerIncomplete) {
             nfc_poller_stop(instance->poller);
@@ -181,7 +180,6 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
             if(card_read) {
                 notification_message(instance->notifications, &sequence_success);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
             } else {
                 const NfcProtocol protocol =
@@ -297,11 +295,9 @@ static bool
             scene_manager_next_scene(instance->scene_manager, NfcSceneInfo);
             consumed = true;
         } else if(event.event == SubmenuIndexCommonEmulate) {
-            dolphin_deed(DolphinDeedNfcEmulate);
             scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
             consumed = true;
         } else if(event.event == SubmenuIndexCommonWrite) {
-            dolphin_deed(DolphinDeedNfcEmulate);
             scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
             consumed = true;
         } else if(event.event == SubmenuIndexCommonEdit) {
@@ -476,15 +472,9 @@ static bool
             scene_manager_next_scene(instance->scene_manager, NfcSceneDelete);
             consumed = true;
         } else if(event.event == SubmenuIndexCommonEmulate) {
-            const bool is_added =
-                scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType);
-            dolphin_deed(is_added ? DolphinDeedNfcAddEmulate : DolphinDeedNfcEmulate);
             scene_manager_next_scene(instance->scene_manager, NfcSceneEmulate);
             consumed = true;
         } else if(event.event == SubmenuIndexCommonWrite) {
-            const bool is_added =
-                scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType);
-            dolphin_deed(is_added ? DolphinDeedNfcAddEmulate : DolphinDeedNfcEmulate);
             scene_manager_next_scene(instance->scene_manager, NfcSceneWrite);
             consumed = true;
         } else if(event.event == SubmenuIndexCommonEdit) {
@@ -552,10 +542,6 @@ static bool
 
             if(nfc_save(instance)) {
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
-                dolphin_deed(
-                    scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType) ?
-                        DolphinDeedNfcAddSave :
-                        DolphinDeedNfcSave);
 
                 const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
                 consumed =
@@ -849,7 +835,6 @@ static bool nfc_protocol_support_scene_write_on_event(NfcApp* instance, SceneMan
             new_state = NfcSceneWriteStateSearching;
             consumed = true;
         } else if(event.event == NfcCustomEventPollerSuccess) {
-            dolphin_deed(DolphinDeedNfcSave);
             notification_message(instance->notifications, &sequence_success);
             new_state = NfcSceneWriteStateSuccess;
             stop_poller = true;

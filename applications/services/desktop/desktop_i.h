@@ -3,7 +3,6 @@
 #include "desktop.h"
 #include "desktop_settings.h"
 
-#include "animations/animation_manager.h"
 #include "views/desktop_view_pin_timeout.h"
 #include "views/desktop_view_pin_input.h"
 #include "views/desktop_view_locked.h"
@@ -11,6 +10,7 @@
 #include "views/desktop_view_lock_menu.h"
 #include "views/desktop_view_debug.h"
 #include "views/desktop_view_slideshow.h"
+#include "views/desktop_view_wallpaper.h"
 
 #include <gui/gui.h>
 #include <gui/view_stack.h>
@@ -56,12 +56,12 @@ struct Desktop {
     DesktopViewPinTimeout* pin_timeout_view;
     DesktopSlideshowView* slideshow_view;
     DesktopViewPinInput* pin_input_view;
+    DesktopViewWallpaper* wallpaper_view;
 
     ViewStack* main_view_stack;
     ViewStack* locked_view_stack;
 
     ViewPort* lock_icon_viewport;
-    ViewPort* dummy_mode_icon_viewport;
     ViewPort* clock_viewport;
     ViewPort* stealth_mode_icon_viewport;
 
@@ -76,9 +76,6 @@ struct Desktop {
     FuriTimer* auto_lock_timer;
     FuriTimer* update_clock_timer;
 
-    AnimationManager* animation_manager;
-    FuriSemaphore* animation_semaphore;
-
     DesktopClock clock;
     DesktopSettings settings;
 
@@ -89,5 +86,4 @@ struct Desktop {
 
 void desktop_lock(Desktop* desktop);
 void desktop_unlock(Desktop* desktop);
-void desktop_set_dummy_mode_state(Desktop* desktop, bool enabled);
 void desktop_set_stealth_mode_state(Desktop* desktop, bool enabled);

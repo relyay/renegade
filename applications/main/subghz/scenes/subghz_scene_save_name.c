@@ -3,7 +3,6 @@
 #include "../helpers/subghz_custom_event.h"
 #include <lib/subghz/protocols/raw.h>
 #include <gui/modules/validators.h>
-#include <dolphin/dolphin.h>
 #include <toolbox/name_generator.h>
 
 #define MAX_TEXT_INPUT_LEN 23
@@ -143,9 +142,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                     // Ditto, for RAW signals
                 } else if(scene_manager_has_previous_scene(
                               subghz->scene_manager, SubGhzSceneSetType)) {
-                    dolphin_deed(DolphinDeedSubGhzAddManually);
                 } else {
-                    dolphin_deed(DolphinDeedSubGhzSave);
                 }
                 return true;
             } else {

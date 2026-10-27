@@ -205,7 +205,6 @@ static bool nfc_scene_read_menu_on_event_mf_classic(NfcApp* instance, SceneManag
                 NfcSceneSaveConfirmStateDetectReader);
 
             scene_manager_next_scene(instance->scene_manager, NfcSceneSaveConfirm);
-            dolphin_deed(DolphinDeedNfcDetectReader);
             consumed = true;
         } else if(event.event == SubmenuIndexDictAttack) {
             if(!scene_manager_search_and_switch_to_previous_scene(

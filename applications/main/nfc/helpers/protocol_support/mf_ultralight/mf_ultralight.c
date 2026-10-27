@@ -180,7 +180,6 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
         if(event.event == NfcCustomEventPollerSuccess) {
             notification_message(instance->notifications, &sequence_success);
             scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-            dolphin_deed(DolphinDeedNfcReadSuccess);
             return true;
         } else if(event.event == NfcCustomEventPollerIncomplete) {
             const MfUltralightData* data =
@@ -196,7 +195,6 @@ bool nfc_scene_read_on_event_mf_ultralight(NfcApp* instance, SceneManagerEvent e
                     notification_message(instance->notifications, &sequence_semi_success);
                 }
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                dolphin_deed(DolphinDeedNfcReadSuccess);
             }
             return true;
         }

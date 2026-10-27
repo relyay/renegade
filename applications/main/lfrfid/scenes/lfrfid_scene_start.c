@@ -1,5 +1,4 @@
 #include "../lfrfid_i.h"
-#include <dolphin/dolphin.h>
 
 static void lfrfid_scene_start_submenu_callback(void* context, uint32_t index) {
     LfRfid* app = context;
@@ -48,7 +47,6 @@ bool lfrfid_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_set_scene_state(
                 app->scene_manager, LfRfidSceneStart, LfRfidMenuIndexRead);
             scene_manager_next_scene(app->scene_manager, LfRfidSceneRead);
-            dolphin_deed(DolphinDeedRfidRead);
             consumed = true;
         } else if(event.event == LfRfidMenuIndexSaved) {
             // Like in the other apps, explicitly save the scene state

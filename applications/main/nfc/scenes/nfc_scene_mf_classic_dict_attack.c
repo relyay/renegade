@@ -1,7 +1,6 @@
 #include "../nfc_app_i.h"
 
 #include <bit_lib/bit_lib.h>
-#include <dolphin/dolphin.h>
 #include <toolbox/stream/buffered_file_stream.h>
 
 #define TAG       "NfcMfClassicDictAttack"
@@ -409,7 +408,6 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
             } else {
                 nfc_scene_mf_classic_dict_attack_notify_read(instance);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
             }
         } else if(event.event == NfcCustomEventCardDetected) {
@@ -444,7 +442,6 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                 } else {
                     nfc_scene_mf_classic_dict_attack_notify_read(instance);
                     scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                    dolphin_deed(DolphinDeedNfcReadSuccess);
                 }
                 consumed = true;
             } else if(state == DictAttackStateUserDictInProgress && !(ran_nested_dict)) {
@@ -462,13 +459,11 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
                 } else {
                     nfc_scene_mf_classic_dict_attack_notify_read(instance);
                     scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                    dolphin_deed(DolphinDeedNfcReadSuccess);
                 }
                 consumed = true;
             } else {
                 nfc_scene_mf_classic_dict_attack_notify_read(instance);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
-                dolphin_deed(DolphinDeedNfcReadSuccess);
                 consumed = true;
             }
         }

@@ -9,6 +9,7 @@ App(
         "expansion_start",
         "bt",
         "desktop",
+        "dolphin",
         "loader",
         "power",
     ],
