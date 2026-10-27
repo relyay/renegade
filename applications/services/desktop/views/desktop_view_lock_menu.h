@@ -18,6 +18,8 @@ struct DesktopLockMenuView {
 typedef struct {
     uint8_t idx;
     bool stealth_mode;
+    bool bt_available;
+    bool bt_enabled;
 } DesktopLockMenuViewModel;
 
 void desktop_lock_menu_set_callback(
@@ -27,6 +29,7 @@ void desktop_lock_menu_set_callback(
 
 View* desktop_lock_menu_get_view(DesktopLockMenuView* lock_menu);
 void desktop_lock_menu_set_stealth_mode_state(DesktopLockMenuView* lock_menu, bool stealth_mode);
+void desktop_lock_menu_set_bt_state(DesktopLockMenuView* lock_menu, bool available, bool enabled);
 void desktop_lock_menu_set_idx(DesktopLockMenuView* lock_menu, uint8_t idx);
 DesktopLockMenuView* desktop_lock_menu_alloc(void);
 void desktop_lock_menu_free(DesktopLockMenuView* lock_menu);

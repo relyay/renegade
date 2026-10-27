@@ -171,7 +171,7 @@ Steps:
 
 3. Reset the RIGHT press assignment to the default value and press RIGHT on the main screen.
 
-   **Expected result:** the application menu opens.
+   **Expected result:** the battery info screen opens.
 
 ## 7. Checking cards and protocols. NTAG215
 

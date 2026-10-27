@@ -14,7 +14,7 @@ struct DesktopMainView {
     FuriTimer* poweroff_timer;
 };
 
-#define DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT 5000
+#define DESKTOP_MAIN_VIEW_POWEROFF_TIMEOUT 1500
 
 static void desktop_main_poweroff_timer_callback(void* context) {
     DesktopMainView* main_view = context;

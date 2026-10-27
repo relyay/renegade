@@ -11,6 +11,8 @@
 #define DEFAULT_INDEX                  (0)
 #define EXTERNAL_BROWSER_NAME          ("(   ) Apps Menu (Default)")
 #define EXTERNAL_BROWSER_NAME_SELECTED ("(*) Apps Menu (Default)")
+#define BATTERY_INFO_NAME              ("(   ) Battery Info (Default)")
+#define BATTERY_INFO_NAME_SELECTED     ("(*) Battery Info (Default)")
 
 #define SELECTED_PREFIX     ("(*) ")
 #define NOT_SELECTED_PREFIX ("(   ) ")
@@ -66,11 +68,13 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     uint32_t pre_select_item = PRESELECTED_SPECIAL;
     furi_assert(favorite_id < FavoriteAppNumber);
     FavoriteApp* curr_favorite_app = &app->settings.favorite_apps[favorite_id];
+    // RIGHT press opens battery info by default, other buttons open the apps menu
+    const bool default_battery_info = favorite_id == FavoriteAppRightShort;
 
-    // Special case: Application browser
+    // Special case: Default action
     submenu_add_item(
         submenu,
-        EXTERNAL_BROWSER_NAME,
+        default_battery_info ? BATTERY_INFO_NAME : EXTERNAL_BROWSER_NAME,
         DEFAULT_INDEX,
         desktop_settings_scene_favorite_submenu_callback,
         app);
@@ -113,7 +117,11 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
     if(pre_select_item == PRESELECTED_SPECIAL) {
         if(curr_favorite_app->name_or_path[0] == '\0') {
             pre_select_item = DEFAULT_INDEX;
-            submenu_change_item_label(submenu, DEFAULT_INDEX, EXTERNAL_BROWSER_NAME_SELECTED);
+            submenu_change_item_label(
+                submenu,
+                DEFAULT_INDEX,
+                default_battery_info ? BATTERY_INFO_NAME_SELECTED :
+                                       EXTERNAL_BROWSER_NAME_SELECTED);
         } else {
             pre_select_item = EXTERNAL_APPLICATION_INDEX;
             submenu_change_item_label(

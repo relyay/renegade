@@ -5,15 +5,19 @@
 #include "../desktop_i.h"
 #include "desktop_view_lock_menu.h"
 
-// Center the menu items in the area below the status bar
-#define LOCK_MENU_Y_OFFSET (STATUS_BAR_Y_SHIFT + 8)
+#define LOCK_MENU_ITEM_HEIGHT 17
 
 typedef enum {
     DesktopLockMenuIndexLock,
     DesktopLockMenuIndexStealth,
+    DesktopLockMenuIndexBluetooth,
 
     DesktopLockMenuIndexTotalCount
 } DesktopLockMenuIndex;
+
+static uint8_t desktop_lock_menu_get_item_count(const DesktopLockMenuViewModel* model) {
+    return model->bt_available ? DesktopLockMenuIndexTotalCount : DesktopLockMenuIndexBluetooth;
+}
 
 void desktop_lock_menu_set_callback(
     DesktopLockMenuView* lock_menu,
@@ -33,6 +37,17 @@ void desktop_lock_menu_set_stealth_mode_state(DesktopLockMenuView* lock_menu, bo
         true);
 }
 
+void desktop_lock_menu_set_bt_state(DesktopLockMenuView* lock_menu, bool available, bool enabled) {
+    with_view_model(
+        lock_menu->view,
+        DesktopLockMenuViewModel * model,
+        {
+            model->bt_available = available;
+            model->bt_enabled = enabled;
+        },
+        true);
+}
+
 void desktop_lock_menu_set_idx(DesktopLockMenuView* lock_menu, uint8_t idx) {
     furi_assert(idx < DesktopLockMenuIndexTotalCount);
     with_view_model(
@@ -47,7 +62,12 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
     canvas_draw_icon(canvas, 116, 0 + STATUS_BAR_Y_SHIFT, &I_DoorRight_70x55);
     canvas_set_font(canvas, FontSecondary);
 
-    for(size_t i = 0; i < DesktopLockMenuIndexTotalCount; ++i) {
+    const uint8_t item_count = desktop_lock_menu_get_item_count(m);
+    // Center the items in the area below the status bar
+    const int32_t y_offset = STATUS_BAR_Y_SHIFT + (DesktopLockMenuIndexTotalCount - item_count) *
+                                                      LOCK_MENU_ITEM_HEIGHT / 2;
+
+    for(size_t i = 0; i < item_count; ++i) {
         const char* str = NULL;
 
         if(i == DesktopLockMenuIndexLock) {
@@ -58,13 +78,25 @@ void desktop_lock_menu_draw_callback(Canvas* canvas, void* model) {
             } else {
                 str = "Mute";
             }
+        } else if(i == DesktopLockMenuIndexBluetooth) {
+            if(m->bt_enabled) {
+                str = "Disable Bluetooth";
+            } else {
+                str = "Enable Bluetooth";
+            }
         }
 
         if(str) //-V547
             canvas_draw_str_aligned(
-                canvas, 64, 9 + (i * 17) + LOCK_MENU_Y_OFFSET, AlignCenter, AlignCenter, str);
+                canvas,
+                64,
+                9 + (i * LOCK_MENU_ITEM_HEIGHT) + y_offset,
+                AlignCenter,
+                AlignCenter,
+                str);
 
-        if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 17) + LOCK_MENU_Y_OFFSET, 98, 15);
+        if(m->idx == i)
+            elements_frame(canvas, 15, 1 + (i * LOCK_MENU_ITEM_HEIGHT) + y_offset, 98, 15);
     }
 }
 
@@ -81,26 +113,28 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
     uint8_t idx = 0;
     bool consumed = false;
     bool stealth_mode = false;
+    bool bt_enabled = false;
     bool update = false;
 
     with_view_model(
         lock_menu->view,
         DesktopLockMenuViewModel * model,
         {
+            const uint8_t item_count = desktop_lock_menu_get_item_count(model);
             if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
                 if(event->key == InputKeyUp) {
                     if(model->idx == 0) {
-                        model->idx = DesktopLockMenuIndexTotalCount - 1;
+                        model->idx = item_count - 1;
                     } else {
-                        model->idx = CLAMP(model->idx - 1, DesktopLockMenuIndexTotalCount - 1, 0);
+                        model->idx = CLAMP(model->idx - 1, item_count - 1, 0);
                     }
                     update = true;
                     consumed = true;
                 } else if(event->key == InputKeyDown) {
-                    if(model->idx == DesktopLockMenuIndexTotalCount - 1) {
+                    if(model->idx >= item_count - 1) {
                         model->idx = 0;
                     } else {
-                        model->idx = CLAMP(model->idx + 1, DesktopLockMenuIndexTotalCount - 1, 0);
+                        model->idx = CLAMP(model->idx + 1, item_count - 1, 0);
                     }
                     update = true;
                     consumed = true;
@@ -108,6 +142,7 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
             }
             idx = model->idx;
             stealth_mode = model->stealth_mode;
+            bt_enabled = model->bt_enabled;
         },
         update);
 
@@ -121,6 +156,12 @@ bool desktop_lock_menu_input_callback(InputEvent* event, void* context) {
                 lock_menu->callback(DesktopLockMenuEventStealthModeOn, lock_menu->context);
             } else if((stealth_mode == true) && (event->type == InputTypeShort)) {
                 lock_menu->callback(DesktopLockMenuEventStealthModeOff, lock_menu->context);
+            }
+        } else if(idx == DesktopLockMenuIndexBluetooth) {
+            if(event->type == InputTypeShort) {
+                lock_menu->callback(
+                    bt_enabled ? DesktopLockMenuEventBtOff : DesktopLockMenuEventBtOn,
+                    lock_menu->context);
             }
         }
         consumed = true;

@@ -11,6 +11,10 @@
 
 #define TAG "DesktopSrv"
 
+// Default action for the RIGHT button
+#define DESKTOP_BATTERY_INFO_APP  "Power"
+#define DESKTOP_BATTERY_INFO_ARGS "Battery Info"
+
 #ifdef APP_ARCHIVE
 static void
     desktop_switch_to_app(Desktop* desktop, const FlipperInternalApplication* flipper_app) {
@@ -39,9 +43,13 @@ static void
 }
 #endif
 
-static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteApp* application) {
+static void desktop_scene_main_start_favorite(Desktop* desktop, FavoriteAppShortcut shortcut) {
+    const FavoriteApp* application = &desktop->settings.favorite_apps[shortcut];
     if(strlen(application->name_or_path) > 0) {
         loader_start_detached_with_gui_error(desktop->loader, application->name_or_path, NULL);
+    } else if(shortcut == FavoriteAppRightShort) {
+        loader_start_detached_with_gui_error(
+            desktop->loader, DESKTOP_BATTERY_INFO_APP, DESKTOP_BATTERY_INFO_ARGS);
     } else {
         loader_start_detached_with_gui_error(desktop->loader, LOADER_APPLICATIONS_NAME, NULL);
     }
@@ -104,23 +112,19 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
         }
 
         case DesktopMainEventOpenFavoriteLeftShort:
-            desktop_scene_main_start_favorite(
-                desktop, &desktop->settings.favorite_apps[FavoriteAppLeftShort]);
+            desktop_scene_main_start_favorite(desktop, FavoriteAppLeftShort);
             consumed = true;
             break;
         case DesktopMainEventOpenFavoriteLeftLong:
-            desktop_scene_main_start_favorite(
-                desktop, &desktop->settings.favorite_apps[FavoriteAppLeftLong]);
+            desktop_scene_main_start_favorite(desktop, FavoriteAppLeftLong);
             consumed = true;
             break;
         case DesktopMainEventOpenFavoriteRightShort:
-            desktop_scene_main_start_favorite(
-                desktop, &desktop->settings.favorite_apps[FavoriteAppRightShort]);
+            desktop_scene_main_start_favorite(desktop, FavoriteAppRightShort);
             consumed = true;
             break;
         case DesktopMainEventOpenFavoriteRightLong:
-            desktop_scene_main_start_favorite(
-                desktop, &desktop->settings.favorite_apps[FavoriteAppRightLong]);
+            desktop_scene_main_start_favorite(desktop, FavoriteAppRightLong);
             consumed = true;
             break;
 
